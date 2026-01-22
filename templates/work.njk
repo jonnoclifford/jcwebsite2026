@@ -1,0 +1,212 @@
+{% extends "base.njk" %}
+
+{# Work/Portfolio Page JSON-LD: CollectionPage with ItemList #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Photography Portfolio - Jonathan Clifford",
+  "description": "Documentary and portrait photography projects by Jonathan Clifford, London-based photographer.",
+  "url": "{{ site.url }}/work/",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for project in projects %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "url": "{{ site.url }}/projects/{{ project.slug }}/",
+        "name": "{{ project.title }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url }}/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Work",
+        "item": "{{ site.url }}/work/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{# Preload the first project preview image for LCP optimization - AVIF with fallback #}
+{% block preload %}
+{% if projects.length > 0 %}
+{% set firstProject = projects[0] %}
+{% set thumbPath = '/images/' + firstProject.slug + '/01' %}
+<link rel="preload" as="image" href="{{ thumbPath }}/1200.avif" type="image/avif" fetchpriority="high">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<section
+  class="work-page"
+  data-work-page
+  itemscope
+  itemtype="https://schema.org/CollectionPage"
+  aria-labelledby="work-heading"
+>
+  <h1 id="work-heading" class="visually-hidden">Documentary and Portrait Photography by Jonathan Clifford</h1>
+
+  {# Left side - Project list #}
+  <div class="work-list">
+    <nav class="work-list-inner" aria-label="Photography projects - {{ projects | length }} projects available">
+      {% for project in projects %}
+      <article class="work-item" itemscope itemtype="https://schema.org/CreativeWork">
+        <a
+          href="/projects/{{ project.slug }}/"
+          class="work-link"
+          data-project-link
+          data-project-slug="{{ project.slug }}"
+          itemprop="url"
+          aria-label="View {{ project.title }} project{% if project.location %} - {{ project.location }}{% endif %}{% if project.year %}, {{ project.year }}{% endif %}"
+        >
+          <span itemprop="name">{{ project.title }}</span>
+        </a>
+      </article>
+      {% endfor %}
+    </nav>
+  </div>
+
+  {# Right side - Image preview #}
+  <div class="work-preview" aria-hidden="true">
+    {% for project in projects %}
+    {% set thumbPath = '/images/' + project.slug + '/01' %}
+    {% set imgData = imageData[project.slug][1] %}
+    <div
+      class="work-preview-image{% if loop.first %} is-visible{% endif %}"
+      data-preview-image
+      data-project-slug="{{ project.slug }}"
+    >
+      <div class="blur-up-container">
+        {% if imgData and imgData.placeholder %}
+        <img
+          class="blur-placeholder"
+          src="{{ imgData.placeholder }}"
+          alt=""
+          aria-hidden="true"
+        >
+        {% endif %}
+        <picture>
+          <source
+            type="image/avif"
+            srcset="
+              {{ thumbPath }}/400.avif 400w,
+              {{ thumbPath }}/800.avif 800w,
+              {{ thumbPath }}/1200.avif 1200w
+            "
+            sizes="50vw"
+          >
+          <source
+            type="image/webp"
+            srcset="
+              {{ thumbPath }}/400.webp 400w,
+              {{ thumbPath }}/800.webp 800w,
+              {{ thumbPath }}/1200.webp 1200w
+            "
+            sizes="50vw"
+          >
+          <img
+            class="blur-up-image"
+            src="{{ thumbPath }}/800.jpg"
+            srcset="
+              {{ thumbPath }}/400.jpg 400w,
+              {{ thumbPath }}/800.jpg 800w,
+              {{ thumbPath }}/1200.jpg 1200w
+            "
+            sizes="50vw"
+            alt="{{ project.title }}{% if project.location %}, {{ project.location }}{% endif %}{% if project.year %} ({{ project.year }}){% endif %} - preview image"
+            loading="{{ 'eager' if loop.first else 'lazy' }}"
+            {% if loop.first %}fetchpriority="high"{% endif %}
+            onload="this.closest('.blur-up-container').classList.add('is-loaded')"
+          >
+        </picture>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+(function() {
+  const page = document.querySelector('[data-work-page]');
+  if (!page) return;
+
+  const links = page.querySelectorAll('[data-project-link]');
+  const previews = page.querySelectorAll('[data-preview-image]');
+  let currentSlug = '{{ projects[0].slug }}';
+
+  function showPreview(slug) {
+    if (slug === currentSlug) return;
+    currentSlug = slug;
+
+    // Update preview images
+    previews.forEach(preview => {
+      if (preview.dataset.projectSlug === slug) {
+        preview.classList.add('is-visible');
+      } else {
+        preview.classList.remove('is-visible');
+      }
+    });
+
+    // Dim non-hovered links
+    links.forEach(link => {
+      if (link.dataset.projectSlug === slug) {
+        link.classList.remove('is-dimmed');
+        link.classList.add('is-active');
+      } else {
+        link.classList.add('is-dimmed');
+        link.classList.remove('is-active');
+      }
+    });
+  }
+
+  function resetLinks() {
+    links.forEach(link => {
+      link.classList.remove('is-dimmed');
+      link.classList.remove('is-active');
+    });
+  }
+
+  links.forEach(link => {
+    // Mouse hover support
+    link.addEventListener('mouseenter', () => {
+      showPreview(link.dataset.projectSlug);
+    });
+
+    // Keyboard focus support for accessibility
+    link.addEventListener('focus', () => {
+      showPreview(link.dataset.projectSlug);
+    });
+  });
+
+  // Reset on mouse leave from the list area
+  const workList = page.querySelector('.work-list');
+  workList.addEventListener('mouseleave', () => {
+    resetLinks();
+  });
+
+  // Reset when focus leaves the navigation
+  workList.addEventListener('focusout', (e) => {
+    // Only reset if focus moved outside the work list
+    if (!workList.contains(e.relatedTarget)) {
+      resetLinks();
+    }
+  });
+})();
+</script>
+{% endblock %}

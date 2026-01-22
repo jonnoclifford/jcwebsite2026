@@ -1,0 +1,187 @@
+
+CUSTOM PRINT STORE – IMPLEMENTATION INSTRUCTIONS
+===============================================
+
+GOAL
+----
+Integrate a fully automated fine-art print sales system into a custom-built website using Stripe for payments and a UK print lab for fulfilment. The system must:
+- Take payment
+- Create an order
+- Send print-ready files to the printer automatically
+- Notify the customer
+- Require zero manual intervention
+
+This document is written for an AI coding agent.
+
+--------------------------------------------------
+1. CORE STACK
+--------------------------------------------------
+
+Payments:
+- Stripe (Checkout or Payment Element)
+- Webhooks enabled
+
+Backend:
+- Custom backend (Node.js, Python, etc.)
+
+Fulfilment:
+- The Print Space (primary recommendation)
+- Alternative: Prodigi
+
+Email:
+- Any transactional email provider (SendGrid, Postmark, Resend, etc.)
+
+--------------------------------------------------
+2. DATA MODEL (MINIMUM REQUIRED)
+--------------------------------------------------
+
+Create an `orders` table with the following fields:
+
+- order_id (internal UUID)
+- stripe_session_id
+- stripe_payment_intent_id
+- customer_email
+- shipping_name
+- shipping_address_line1
+- shipping_city
+- shipping_postcode
+- shipping_country
+- image_id
+- print_size
+- paper_type
+- price_paid
+- currency
+- fulfilment_status (pending | printing | shipped | failed)
+- printer_order_id
+- tracking_url
+- created_at
+- updated_at
+
+--------------------------------------------------
+3. FILE HANDLING RULES (CRITICAL)
+--------------------------------------------------
+
+- Store high-resolution print files privately (server or private object storage)
+- Never expose print-ready file URLs publicly
+- Do not allow browser → printer uploads
+- Only backend services may access print files
+- Define max print size per image to avoid upscaling
+
+Each image must have:
+- image_id
+- print_file_path
+- allowed_sizes[]
+- aspect_ratio
+- colour_profile (e.g. Adobe RGB)
+
+--------------------------------------------------
+4. CHECKOUT FLOW
+--------------------------------------------------
+
+FRONTEND:
+1. User selects:
+   - Image
+   - Size
+   - Paper
+2. User enters shipping details
+3. User pays via Stripe Checkout or Payment Element
+
+Send to Stripe:
+- line_items with SKU metadata
+- metadata fields:
+  - image_id
+  - print_size
+  - paper_type
+
+--------------------------------------------------
+5. STRIPE WEBHOOK HANDLING
+--------------------------------------------------
+
+Listen for:
+- checkout.session.completed
+
+On webhook receipt:
+1. Verify signature
+2. Confirm payment_status == "paid"
+3. Extract:
+   - stripe_session_id
+   - payment_intent_id
+   - metadata (image_id, size, paper)
+   - shipping details
+4. Create order record in database
+5. Set fulfilment_status = "pending"
+
+DO NOT trigger fulfilment from the frontend.
+
+--------------------------------------------------
+6. SEND ORDER TO PRINT LAB
+--------------------------------------------------
+
+Backend process:
+1. Lookup image by image_id
+2. Validate requested size against allowed_sizes
+3. Retrieve print-ready file
+4. Build print lab API request with:
+   - Product type (fine art print)
+   - Paper stock
+   - Size
+   - Quantity (1)
+   - Shipping address
+   - Private file upload or secure file URL
+5. Submit order to print lab
+
+On success:
+- Save printer_order_id
+- Set fulfilment_status = "printing"
+
+--------------------------------------------------
+7. FULFILMENT STATUS UPDATES
+--------------------------------------------------
+
+Option A: Webhooks from printer
+- Listen for order.shipped
+- Save tracking URL
+- Update fulfilment_status = "shipped"
+
+Option B: Poll printer API
+- Check status every X hours
+- Update database accordingly
+
+--------------------------------------------------
+8. CUSTOMER EMAILS
+--------------------------------------------------
+
+Send transactional emails:
+- Order confirmation (after payment)
+- Shipping confirmation (with tracking)
+
+Never send emails manually.
+
+--------------------------------------------------
+9. ERROR HANDLING
+--------------------------------------------------
+
+If printer order fails:
+- Set fulfilment_status = "failed"
+- Alert admin via email/log
+- Do NOT auto-refund unless explicitly triggered
+
+If webhook fails:
+- Log and retry
+- Webhooks must be idempotent
+
+--------------------------------------------------
+10. INITIAL CONSTRAINTS (IMPORTANT)
+--------------------------------------------------
+
+For v1:
+- 1 paper type
+- 1–2 print sizes
+- Open editions only
+- No framing
+- No user accounts
+
+Expand only after successful sales.
+
+--------------------------------------------------
+END OF DOCUMENT

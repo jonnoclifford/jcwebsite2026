@@ -1,0 +1,35 @@
+{
+  "name": "jc-portfolio",
+  "version": "1.0.0",
+  "description": "Jonathan Clifford Photography Portfolio",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch",
+    "watch": "node scripts/watch.js",
+    "watch:serve": "node scripts/watch.js --serve",
+    "serve": "npx serve dist -l 3000 -s",
+    "extract": "node scripts/extract-images.js",
+    "download": "node scripts/download-images.js",
+    "new-project": "node scripts/new-project.js"
+  },
+  "dependencies": {
+    "clean-css": "^5.3.3",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "nunjucks": "^3.2.4",
+    "sharp": "^0.33.2",
+    "stripe": "^14.25.0",
+    "terser": "^5.31.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "chokidar": "^3.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Jonathan Clifford",
+  "license": "UNLICENSED",
+  "private": true
+}

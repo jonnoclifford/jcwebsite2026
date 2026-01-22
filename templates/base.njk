@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {# Primary Meta Tags #}
+  <title>{{ title | default('Jonathan Clifford - Documentary & Portrait Photographer London') }}</title>
+  <meta name="description" content="{{ description | default('Jonathan Clifford is a documentary and portrait photographer based in London. Specialising in editorial, commercial, and fine art photography for publications and brands worldwide.') }}">
+  <meta name="keywords" content="{{ keywords | default('documentary photographer london, portrait photographer london, editorial photographer, commercial photographer uk, fine art photography, jonathan clifford photographer') }}">
+  <meta name="author" content="Jonathan Clifford">
+  <meta name="robots" content="{{ robots | default('index, follow') }}">
+  <meta name="googlebot" content="{{ robots | default('index, follow') }}">
+
+  {# Geo Tags for Local SEO #}
+  <meta name="geo.region" content="GB-LND">
+  <meta name="geo.placename" content="London">
+
+  {# Open Graph / Facebook #}
+  <meta property="og:type" content="{{ ogType | default('website') }}">
+  <meta property="og:url" content="{{ site.url }}{{ currentPath | default('/') }}">
+  <meta property="og:title" content="{{ ogTitle | default(title) | default('Jonathan Clifford - Documentary & Portrait Photographer London') }}">
+  <meta property="og:description" content="{{ ogDescription | default(description) | default('Documentary and portrait photographer based in London, working with publications and brands worldwide.') }}">
+  <meta property="og:image" content="{{ ogImage | default(site.url + '/images/og-default.jpg') }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ ogImageAlt | default('Photography by Jonathan Clifford') }}">
+  <meta property="og:site_name" content="Jonathan Clifford Photography">
+  <meta property="og:locale" content="en_GB">
+
+  {# Twitter Card #}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="{{ site.url }}{{ currentPath | default('/') }}">
+  <meta name="twitter:title" content="{{ twitterTitle | default(title) | default('Jonathan Clifford - Documentary & Portrait Photographer London') }}">
+  <meta name="twitter:description" content="{{ twitterDescription | default(description) | default('Documentary and portrait photographer based in London.') }}">
+  <meta name="twitter:image" content="{{ ogImage | default(site.url + '/images/og-default.jpg') }}">
+  <meta name="twitter:image:alt" content="{{ ogImageAlt | default('Photography by Jonathan Clifford') }}">
+  <meta name="twitter:creator" content="@jonnoclifford">
+
+  {# Canonical URL #}
+  <link rel="canonical" href="{{ site.url }}{{ currentPath | default('/') }}">
+
+  {# Mobile browser theme colors #}
+  <meta name="theme-color" content="#F8F7F5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+
+  {# Favicon and Icons #}
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+
+  {# Preconnect for video embeds (Vimeo) - only on video page #}
+  {% if currentPage == 'video' %}
+  <link rel="preconnect" href="https://player.vimeo.com">
+  <link rel="preconnect" href="https://i.vimeocdn.com">
+  <link rel="preconnect" href="https://f.vimeocdn.com">
+  {% endif %}
+
+  {# Critical CSS inlined for faster first paint #}
+  {% if criticalCss %}
+  <style>{{ criticalCss | safe }}</style>
+  {% endif %}
+
+  {# Main stylesheet - loads asynchronously after critical CSS #}
+  <link rel="stylesheet" href="/css/styles.css">
+
+  {# JSON-LD Structured Data - Person Schema (Photographer) #}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "{{ site.url }}/#photographer",
+    "name": "Jonathan Clifford",
+    "alternateName": "Jonno Clifford",
+    "url": "{{ site.url }}",
+    "image": "{{ site.url }}/images/portrait.jpg",
+    "description": "Documentary and portrait photographer based in London, specialising in editorial, commercial, and fine art photography.",
+    "jobTitle": "Documentary & Portrait Photographer",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Jonathan Clifford Photography"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "London",
+      "addressCountry": "GB"
+    },
+    "email": "info@jonathanclifford.com",
+    "sameAs": [
+      "https://instagram.com/jonnoclifford",
+      "https://jonnoclifford.com"
+    ],
+    "knowsAbout": [
+      "Documentary Photography",
+      "Portrait Photography",
+      "Editorial Photography",
+      "Commercial Photography",
+      "Fine Art Photography"
+    ]
+  }
+  </script>
+
+  {# Page-specific JSON-LD #}
+  {% block jsonld %}{% endblock %}
+
+  {# Preload critical LCP image for specific pages #}
+  {% block preload %}{% endblock %}
+
+  {% block head %}{% endblock %}
+</head>
+<body{% if portfolio == 'commercial' %} class="commercial-theme"{% endif %}>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="site-header" role="banner" data-header>
+    <nav class="site-nav" role="navigation" aria-label="Main navigation">
+      {# Logo - Left side #}
+      <a href="/" class="site-logo" aria-label="Jonathan Clifford - Home">
+        <span class="logo-text">Jonathan Clifford</span>
+      </a>
+
+      {# Mobile Toggle - 44px minimum tap target #}
+      <button
+        class="nav-toggle"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="nav-menu"
+        aria-label="Toggle navigation menu"
+      >
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      {# Navigation Menu - Portfolio aware #}
+      {% set navPrefix = '/' + portfolio + '/' if portfolio else '/' %}
+      <ul id="nav-menu" class="nav-menu" data-menu role="menubar">
+        {% if portfolio == 'commercial' %}
+        {# Commercial Work with dropdown #}
+        <li class="nav-item nav-item--dropdown" role="none">
+          <a
+            href="{{ navPrefix }}work/"
+            class="nav-link{% if currentPage == 'work' %} is-active{% endif %}"
+            role="menuitem"
+            aria-haspopup="true"
+            aria-expanded="false"
+            {% if currentPage == 'work' %}aria-current="page"{% endif %}
+          >Work</a>
+          <ul class="nav-dropdown" role="menu" aria-label="Portfolio categories">
+            <li role="none"><a href="/commercial/food-drink/" class="nav-dropdown-link" role="menuitem">Food & Drink</a></li>
+            <li role="none"><a href="/commercial/interiors/" class="nav-dropdown-link" role="menuitem">Interiors</a></li>
+            <li role="none"><a href="/commercial/product/" class="nav-dropdown-link" role="menuitem">Product</a></li>
+            <li role="none"><a href="/commercial/travel/" class="nav-dropdown-link" role="menuitem">Travel</a></li>
+            <li role="none"><a href="/commercial/sport-lifestyle/" class="nav-dropdown-link" role="menuitem">Sport & Lifestyle</a></li>
+            <li role="none"><a href="/commercial/people/" class="nav-dropdown-link" role="menuitem">People</a></li>
+          </ul>
+        </li>
+        <li class="nav-item" role="none">
+          <a
+            href="/commercial/video/"
+            class="nav-link{% if currentPage == 'video' %} is-active{% endif %}"
+            role="menuitem"
+            {% if currentPage == 'video' %}aria-current="page"{% endif %}
+          >Video</a>
+        </li>
+        {% else %}
+        {# Personal/default Work without dropdown #}
+        <li class="nav-item" role="none">
+          <a
+            href="{{ navPrefix }}work/"
+            class="nav-link{% if currentPage == 'work' %} is-active{% endif %}"
+            role="menuitem"
+            {% if currentPage == 'work' %}aria-current="page"{% endif %}
+          >Work</a>
+        </li>
+        {% endif %}
+        {% if portfolio == 'personal' %}
+        <li class="nav-item" role="none">
+          <a
+            href="/prints/"
+            class="nav-link{% if currentPage == 'prints' %} is-active{% endif %}"
+            role="menuitem"
+            {% if currentPage == 'prints' %}aria-current="page"{% endif %}
+          >Prints</a>
+        </li>
+        {% endif %}
+        <li class="nav-item" role="none">
+          <a
+            href="{{ navPrefix }}about/"
+            class="nav-link{% if currentPage == 'about' %} is-active{% endif %}"
+            role="menuitem"
+            {% if currentPage == 'about' %}aria-current="page"{% endif %}
+          >About</a>
+        </li>
+        <li class="nav-item" role="none">
+          <a
+            href="{{ navPrefix }}contact/"
+            class="nav-link{% if currentPage == 'contact' %} is-active{% endif %}"
+            role="menuitem"
+            {% if currentPage == 'contact' %}aria-current="page"{% endif %}
+          >Contact</a>
+        </li>
+      </ul>
+
+    </nav>
+  </header>
+
+  <main id="main-content" class="site-main" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}
+  <footer class="site-footer" role="contentinfo">
+    <p class="copyright">&copy; {{ currentYear | default('2026') }} Jonathan Clifford</p>
+  </footer>
+  {% endblock %}
+
+  {# Theme Toggle - only visible on large screens via CSS #}
+  <button
+    type="button"
+    id="theme-toggle"
+    class="theme-toggle"
+    aria-label="Toggle dark mode"
+  >
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  </button>
+
+  {# Critical JS bundle - loads immediately (dark mode, navigation, lazy loading) #}
+  <script src="/js/critical.js"></script>
+
+  {# Interactive JS bundle - deferred (slideshow, lightbox, video modal) #}
+  <script src="/js/interactive.js" defer></script>
+
+  {# Service Worker registration - runs after page load #}
+  <script>
+  if('serviceWorker'in navigator&&location.hostname!=='localhost'){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{}));
+  }
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

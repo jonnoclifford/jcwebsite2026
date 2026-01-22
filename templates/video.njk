@@ -1,0 +1,150 @@
+{% extends "base.njk" %}
+
+{# Video Page JSON-LD: ItemList of VideoObjects #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Video Work - Jonathan Clifford",
+  "description": "Film and video work by Jonathan Clifford, documentary and portrait photographer based in London.",
+  "url": "{{ site.url }}/video/",
+  "author": {
+    "@id": "{{ site.url }}/#photographer"
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for video in videos %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "item": {
+          "@type": "VideoObject",
+          "name": "{{ video.title }}",
+          {% if video.description %}
+          "description": "{{ video.description }}",
+          {% endif %}
+          {% if video.year %}
+          "dateCreated": "{{ video.year }}",
+          {% endif %}
+          "embedUrl": "https://player.vimeo.com/video/{{ video.vimeoId }}",
+          "author": {
+            "@id": "{{ site.url }}/#photographer"
+          }
+        }
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url }}/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Video",
+        "item": "{{ site.url }}/video/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="video-section" aria-labelledby="video-heading">
+  <header class="video-header">
+    <h1 id="video-heading" class="page-title">Video</h1>
+  </header>
+
+  <div class="video-grid">
+    {% for video in videos %}
+    <article
+      class="video-card"
+      data-video
+      data-video-id="{{ video.vimeoId }}"
+      data-video-title="{{ video.title }}"
+    >
+      <button
+        class="video-trigger"
+        type="button"
+        aria-label="Play {{ video.title }}"
+        data-video-play
+      >
+        <figure class="video-thumbnail">
+          <div class="video-poster" style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
+            <div class="video-overlay">
+              <span class="video-play-icon" aria-hidden="true">
+                <svg width="64" height="64" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="31" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <polygon points="26,20 26,44 46,32" fill="currentColor"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </figure>
+
+        <div class="video-info">
+          <h2 class="video-title">{{ video.title }}</h2>
+          {% if video.year %}
+          <time class="video-year" datetime="{{ video.year }}">{{ video.year }}</time>
+          {% endif %}
+          {% if video.description %}
+          <p class="video-description">{{ video.description }}</p>
+          {% endif %}
+        </div>
+      </button>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+{# Video Modal - rendered once, controlled by JS #}
+<div
+  class="video-modal"
+  id="video-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="video-modal-title"
+  aria-hidden="true"
+>
+  <div class="video-modal-backdrop" data-video-modal-close></div>
+
+  <div class="video-modal-content">
+    <div class="video-modal-header">
+      <h2 class="video-modal-title" id="video-modal-title"></h2>
+      <button
+        class="video-modal-close"
+        type="button"
+        data-video-modal-close
+        aria-label="Close video"
+      >
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="video-modal-player">
+      <div
+        class="video-embed"
+        id="video-embed"
+        data-video-container
+      >
+        {# Vimeo iframe will be inserted here by JS #}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://player.vimeo.com/api/player.js" defer></script>
+{% endblock %}

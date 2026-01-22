@@ -1,0 +1,27 @@
+{% extends "base.njk" %}
+
+{% block content %}
+<article class="prints-success" aria-labelledby="success-heading">
+  <div class="success-content">
+    <div class="success-icon" aria-hidden="true">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="32" cy="32" r="30"/>
+        <path d="M20 32l8 8 16-16"/>
+      </svg>
+    </div>
+
+    <h1 id="success-heading" class="success-title">Thank You</h1>
+    <p class="success-message">Your order has been received and is being processed.</p>
+
+    <div class="success-details">
+      <p>You'll receive a confirmation email shortly with your order details.</p>
+      <p>Your print will be carefully produced and shipped within 5-10 business days.</p>
+    </div>
+
+    <div class="success-actions">
+      <a href="/prints/" class="success-link">Continue Shopping</a>
+      <a href="/" class="success-link success-link--secondary">Return Home</a>
+    </div>
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,301 @@
+{% extends "base.njk" %}
+
+{# Commercial Work Page - Clean Category Grid Layout #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Commercial Photography - Jonathan Clifford",
+  "description": "Commercial photography portfolio featuring food & drink, interiors, product, travel, sport & lifestyle, and people photography.",
+  "url": "{{ site.url }}/commercial/work/",
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {% for category in categories %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "url": "{{ site.url }}/commercial/{{ category.slug }}/",
+        "name": "{{ category.title }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section
+  class="commercial-work-page"
+  data-commercial-work
+  itemscope
+  itemtype="https://schema.org/CollectionPage"
+  aria-labelledby="commercial-work-heading"
+>
+  <h1 id="commercial-work-heading" class="visually-hidden">Commercial Photography by Jonathan Clifford</h1>
+
+  {# Category Grid - 3x2 layout with square items #}
+  <div class="commercial-category-grid">
+    {% for category in categories %}
+    <a href="/commercial/{{ category.slug }}/" class="category-item{% if activeCategory == category.slug %} is-active{% endif %}">
+      {# Category cover image - uses landing images as placeholders #}
+      <div class="category-image">
+        {% set imgIndex = loop.index0 % 6 %}
+        {% if gridImages[imgIndex] %}
+        <picture>
+          <source
+            type="image/avif"
+            srcset="{{ gridImages[imgIndex].path }}/800.avif 800w, {{ gridImages[imgIndex].path }}/1200.avif 1200w"
+            sizes="(min-width: 1024px) 33vw, 50vw"
+          >
+          <source
+            type="image/webp"
+            srcset="{{ gridImages[imgIndex].path }}/800.webp 800w, {{ gridImages[imgIndex].path }}/1200.webp 1200w"
+            sizes="(min-width: 1024px) 33vw, 50vw"
+          >
+          <img
+            class="category-img"
+            src="{{ gridImages[imgIndex].path }}/800.jpg"
+            srcset="{{ gridImages[imgIndex].path }}/800.jpg 800w, {{ gridImages[imgIndex].path }}/1200.jpg 1200w"
+            sizes="(min-width: 1024px) 33vw, 50vw"
+            alt="{{ category.title }} photography"
+            loading="{{ 'eager' if loop.index <= 3 else 'lazy' }}"
+            {% if loop.index <= 3 %}fetchpriority="high"{% endif %}
+          >
+        </picture>
+        {% else %}
+        <div class="category-placeholder"></div>
+        {% endif %}
+      </div>
+      {# Hover overlay with category name #}
+      <div class="category-overlay">
+        <span class="category-name">{{ category.title }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+/* Commercial Work Page - content container */
+.commercial-work-page {
+  padding: var(--space-4) var(--commercial-padding);
+  max-width: calc(var(--commercial-max-width) + var(--commercial-padding) * 2);
+  margin: 0 auto;
+  background-color: #FFFFFF;
+}
+
+/* Category Grid - 3x2 layout */
+.commercial-category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+/* Category Item */
+.category-item {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+/* Desktop: grid aligns with header */
+@media (min-width: 1025px) {
+  .commercial-work-page {
+    max-width: var(--grid-width);
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .commercial-category-grid {
+    gap: var(--grid-gap);
+  }
+}
+
+/* Category Image Container */
+.category-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.category-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #e8e8e6;
+}
+
+/* Hover Overlay */
+.category-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.3s ease;
+}
+
+.category-name {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Desktop Hover States */
+@media (hover: hover) {
+  .category-item:hover .category-overlay {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .category-item:hover .category-name {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .category-item:hover .category-img {
+    transform: scale(1.03);
+  }
+}
+
+/* Focus state for accessibility */
+.category-item:focus-visible {
+  outline: 2px solid var(--color-black);
+  outline-offset: 2px;
+}
+
+.category-item:focus-visible .category-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.category-item:focus-visible .category-name {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Active category state */
+.category-item.is-active .category-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.category-item.is-active .category-name {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tablet - 2 columns */
+@media (max-width: 1024px) {
+  .commercial-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile - 2 columns with visible category names */
+@media (max-width: 768px) {
+  .commercial-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Always show overlay and name on mobile (no hover) */
+  .category-overlay {
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .category-name {
+    opacity: 1;
+    transform: translateY(0);
+    font-size: 0.8125rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .category-name {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .commercial-work-page {
+  background-color: #0F0F0F;
+}
+
+[data-theme="dark"] .category-placeholder {
+  background-color: #1A1A1A;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .category-img {
+    transition: none;
+  }
+
+  .category-overlay,
+  .category-name {
+    transition: none;
+  }
+
+  .category-item:hover .category-img {
+    transform: none;
+  }
+}
+</style>
+{% endblock %}
+
+{% block footer %}
+<footer class="site-footer commercial-footer" role="contentinfo">
+  <p class="copyright">&copy; {{ currentYear | default('2026') }} Jonathan Clifford</p>
+</footer>
+
+<style>
+.commercial-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem var(--commercial-padding, 2rem);
+  background-color: #FFFFFF;
+  max-width: calc(var(--commercial-max-width, 1100px) + var(--commercial-padding, 2rem) * 2);
+  margin: 0 auto;
+}
+
+/* Desktop: footer aligns with grid */
+@media (min-width: 1025px) {
+  .commercial-footer {
+    max-width: var(--grid-width);
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.commercial-footer .copyright {
+  font-family: var(--font-primary);
+  font-size: 0.7rem;
+  color: var(--text-secondary, #888);
+  margin: 0;
+}
+
+[data-theme="dark"] .commercial-footer {
+  background-color: #0F0F0F;
+}
+</style>
+{% endblock %}

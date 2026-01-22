@@ -1,0 +1,206 @@
+{% extends "base.njk" %}
+
+{% block footer %}{% endblock %}
+
+{# Homepage JSON-LD: WebSite with SearchAction for sitelinks #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Jonathan Clifford Photography",
+  "alternateName": "Jonathan Clifford - Documentary & Portrait Photographer",
+  "url": "{{ site.url }}",
+  "description": "Documentary and portrait photographer based in London, specialising in editorial, commercial, and fine art photography.",
+  "publisher": {
+    "@id": "{{ site.url }}/#photographer"
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "{{ site.url }}/work/"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Jonathan Clifford Photography",
+  "image": "{{ site.url }}/images/og-default.jpg",
+  "url": "{{ site.url }}",
+  "telephone": "",
+  "email": "info@jonathanclifford.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "London",
+    "addressCountry": "GB"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 51.5074,
+    "longitude": -0.1278
+  },
+  "priceRange": "$$",
+  "areaServed": ["London", "United Kingdom", "International"],
+  "serviceType": ["Documentary Photography", "Portrait Photography", "Editorial Photography", "Commercial Photography"],
+  "sameAs": [
+    "https://instagram.com/jonnoclifford",
+    "https://jonnoclifford.com"
+  ]
+}
+</script>
+{% endblock %}
+
+{# Preload the first homepage image for LCP optimization - AVIF with WebP fallback #}
+{% block preload %}
+{% set imageKeys = homepageImages | keys %}
+{% if imageKeys.length > 0 %}
+{% set firstImg = homepageImages[imageKeys[0]] %}
+<link rel="preload" as="image" href="{{ firstImg.path }}/1200.avif" type="image/avif" fetchpriority="high">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% set imageKeys = homepageImages | keys %}
+{% if imageKeys.length > 0 %}
+{# Use curated homepage images #}
+<section
+  class="home-slideshow"
+  data-slideshow
+  aria-label="Featured photography slideshow"
+  aria-roledescription="carousel"
+>
+  <div class="slideshow-container" role="group" aria-label="Slideshow images">
+    {% for num in imageKeys %}
+    {% set img = homepageImages[num] %}
+    <div
+      class="slideshow-slide"
+      data-slide
+      data-slide-index="{{ loop.index0 }}"
+      role="group"
+      aria-roledescription="slide"
+      aria-label="Slide {{ loop.index }} of {{ imageKeys.length }}"
+      aria-hidden="true"
+    >
+      <div class="blur-up-container" {% if img.dominantColor %}style="background-color: {{ img.dominantColor }}"{% endif %}>
+        {# Blur placeholder - decorative #}
+        <img
+          class="blur-placeholder"
+          src="{{ img.placeholder }}"
+          alt=""
+          aria-hidden="true"
+        >
+        {# Full image with pre-computed srcset paths - AVIF first for best compression #}
+        <picture>
+          <source
+            type="image/avif"
+            srcset="{{ img.srcset.avif }}"
+            sizes="(max-width: 800px) 100vw, 80vw"
+          >
+          <source
+            type="image/webp"
+            srcset="{{ img.srcset.webp }}"
+            sizes="(max-width: 800px) 100vw, 80vw"
+          >
+          <img
+            class="blur-up-image slideshow-image"
+            src="{{ img.src }}"
+            srcset="{{ img.srcset.jpg }}"
+            sizes="(max-width: 800px) 100vw, 80vw"
+            alt="Featured photograph from Jonathan Clifford's documentary portfolio - image {{ loop.index }} of {{ imageKeys.length }}"
+            loading="{{ 'eager' if loop.first else 'lazy' }}"
+            {% if loop.first %}fetchpriority="high"{% endif %}
+            onload="this.parentElement.parentElement.classList.add('is-loaded')"
+          >
+        </picture>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {# Slideshow footer with accessible counter #}
+  <div class="slideshow-footer">
+    <span
+      class="slideshow-counter"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <span class="visually-hidden">Currently showing slide </span>
+      <span data-slideshow-current>1</span><span aria-hidden="true">/</span><span class="visually-hidden"> of </span><span>{{ imageKeys.length }}</span>
+    </span>
+  </div>
+
+  {# Screen reader announcement region for slide changes #}
+  <div
+    class="visually-hidden"
+    aria-live="polite"
+    aria-atomic="true"
+    data-slideshow-announce
+  ></div>
+</section>
+
+{% else %}
+{# Fallback: show first project image as static #}
+<section class="home-static">
+  <div class="home-static-image">
+    {% set firstProject = projects[0] %}
+    {% set imgPath = '/images/' + firstProject.slug + '/01' %}
+    {% set imgData = imageData[firstProject.slug][1] %}
+    <div class="blur-up-container">
+      {% if imgData and imgData.placeholder %}
+      <img
+        class="blur-placeholder"
+        src="{{ imgData.placeholder }}"
+        alt=""
+        aria-hidden="true"
+      >
+      {% endif %}
+      <a href="/projects/{{ firstProject.slug }}/">
+        <picture>
+          <source
+            type="image/avif"
+            srcset="
+              {{ imgPath }}/400.avif 400w,
+              {{ imgPath }}/800.avif 800w,
+              {{ imgPath }}/1200.avif 1200w
+            "
+            sizes="(max-width: 800px) 100vw, 80vw"
+          >
+          <source
+            type="image/webp"
+            srcset="
+              {{ imgPath }}/400.webp 400w,
+              {{ imgPath }}/800.webp 800w,
+              {{ imgPath }}/1200.webp 1200w
+            "
+            sizes="(max-width: 800px) 100vw, 80vw"
+          >
+          <img
+            class="blur-up-image"
+            src="{{ imgPath }}/1200.jpg"
+            srcset="
+              {{ imgPath }}/400.jpg 400w,
+              {{ imgPath }}/800.jpg 800w,
+              {{ imgPath }}/1200.jpg 1200w
+            "
+            sizes="(max-width: 800px) 100vw, 80vw"
+            alt="{{ firstProject.title }}{% if firstProject.location %}, {{ firstProject.location }}{% endif %}{% if firstProject.year %} ({{ firstProject.year }}){% endif %} - featured project by Jonathan Clifford"
+            loading="eager"
+            fetchpriority="high"
+            onload="this.closest('.blur-up-container').classList.add('is-loaded')"
+          >
+        </picture>
+      </a>
+    </div>
+  </div>
+  <div class="home-static-footer">
+    <span>{{ firstProject.title }}</span>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

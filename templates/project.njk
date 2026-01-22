@@ -1,0 +1,549 @@
+{% extends "base.njk" %}
+
+{% block footer %}{% endblock %}
+
+{# Project Page JSON-LD: ImageGallery schema for photography projects #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ImageGallery",
+  "name": "{{ project.title }} - Photography by Jonathan Clifford",
+  "description": "{{ project.description | default(project.title + ' - Documentary photography project by Jonathan Clifford') | striptags }}",
+  "url": "{{ site.url }}/projects/{{ project.slug }}/",
+  "author": {
+    "@id": "{{ site.url }}/#photographer"
+  },
+  "creator": {
+    "@id": "{{ site.url }}/#photographer"
+  },
+  {% if project.year %}
+  "dateCreated": "{{ project.year }}",
+  {% endif %}
+  {% if project.location %}
+  "contentLocation": {
+    "@type": "Place",
+    "name": "{{ project.location }}"
+  },
+  {% endif %}
+  "image": [
+    {% for image in images %}
+    {
+      "@type": "ImageObject",
+      "contentUrl": "{{ site.url }}/images/{{ project.slug }}/{{ image.index | padStart(2, '0') }}/1200.jpg",
+      "thumbnail": "{{ site.url }}/images/{{ project.slug }}/{{ image.index | padStart(2, '0') }}/400.jpg",
+      "name": "{{ project.title }} - Image {{ loop.index }}",
+      "description": "Documentary photograph from {{ project.title }}{% if project.location %} in {{ project.location }}{% endif %} by Jonathan Clifford",
+      "author": {
+        "@id": "{{ site.url }}/#photographer"
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url }}/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Work",
+        "item": "{{ site.url }}/work/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ project.title }}",
+        "item": "{{ site.url }}/projects/{{ project.slug }}/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{# Preload the first project image for LCP optimization - AVIF with fallback #}
+{% block preload %}
+{% set imgPath = '/images/' + project.slug + '/01' %}
+<link rel="preload" as="image" href="{{ imgPath }}/1200.avif" type="image/avif" fetchpriority="high">
+{% endblock %}
+
+{% block content %}
+<article
+  class="project-view"
+  data-project-view
+  aria-label="{{ project.title }} photo gallery"
+  aria-roledescription="slideshow"
+>
+  {# Slide Container #}
+  <div class="project-slides" role="region" aria-label="Project images" id="project-slides">
+    {# Navigation zones - click left/right to navigate #}
+    <button
+      class="project-nav-zone project-nav-zone--prev"
+      data-project-prev
+      aria-label="Go to previous slide"
+      aria-controls="project-slides"
+    >
+      <span class="visually-hidden">Previous slide</span>
+    </button>
+    <button
+      class="project-nav-zone project-nav-zone--next"
+      data-project-next
+      aria-label="Go to next slide"
+      aria-controls="project-slides"
+    >
+      <span class="visually-hidden">Next slide</span>
+    </button>
+
+    {# Slide 0: Intro slide with title, text left, image right #}
+    <div
+      class="project-slide project-slide--intro is-active"
+      data-project-slide
+      data-slide-index="0"
+      role="group"
+      aria-roledescription="slide"
+      aria-label="Introduction slide"
+      aria-hidden="false"
+    >
+      <h1 class="project-intro-title">{{ project.title }}</h1>
+      <div class="project-intro-content">
+        <div class="project-intro-text">
+          {% if project.description %}
+          <div class="project-intro-description">
+            {{ project.description | paragraphs | safe }}
+          </div>
+          {% else %}
+          <div class="project-intro-description">
+            <p>{{ project.title }} is a documentary photography project{% if project.location %} from {{ project.location }}{% endif %}{% if project.year %}, {{ project.year }}{% endif %}.</p>
+          </div>
+          {% endif %}
+        </div>
+        <div class="project-intro-image">
+          {% set imgPath = '/images/' + project.slug + '/01' %}
+          <picture>
+            <source
+              type="image/avif"
+              srcset="
+                {{ imgPath }}/400.avif 400w,
+                {{ imgPath }}/800.avif 800w,
+                {{ imgPath }}/1200.avif 1200w
+              "
+              sizes="(max-width: 768px) 100vw, 50vw"
+            >
+            <source
+              type="image/webp"
+              srcset="
+                {{ imgPath }}/400.webp 400w,
+                {{ imgPath }}/800.webp 800w,
+                {{ imgPath }}/1200.webp 1200w
+              "
+              sizes="(max-width: 768px) 100vw, 50vw"
+            >
+            <img
+              src="{{ imgPath }}/800.jpg"
+              srcset="
+                {{ imgPath }}/400.jpg 400w,
+                {{ imgPath }}/800.jpg 800w,
+                {{ imgPath }}/1200.jpg 1200w
+              "
+              sizes="(max-width: 768px) 100vw, 50vw"
+              alt="{{ project.title }}{% if project.location %} photographed in {{ project.location }}{% endif %}{% if project.year %} in {{ project.year }}{% endif %}, documentary photography by Jonathan Clifford"
+              loading="eager"
+              fetchpriority="high"
+            >
+          </picture>
+        </div>
+      </div>
+    </div>
+
+    {# Image slides #}
+    {% for image in images %}
+    {% set imgIndex = image.index | padStart(2, '0') %}
+    {% set imgPath = '/images/' + project.slug + '/' + imgIndex %}
+    <div
+      class="project-slide project-slide--image"
+      data-project-slide
+      data-slide-index="{{ loop.index }}"
+      role="group"
+      aria-roledescription="slide"
+      aria-label="Photo {{ loop.index }} of {{ images | length }}"
+      aria-hidden="true"
+    >
+      <figure class="project-image blur-up-container">
+        {% if image.data and image.data.placeholder %}
+        <img
+          class="blur-placeholder"
+          src="{{ image.data.placeholder }}"
+          alt=""
+          aria-hidden="true"
+        >
+        {% endif %}
+        <picture>
+          <source
+            type="image/avif"
+            srcset="
+              {{ imgPath }}/400.avif 400w,
+              {{ imgPath }}/800.avif 800w,
+              {{ imgPath }}/1200.avif 1200w
+            "
+            sizes="(max-width: 800px) 100vw, 80vw"
+          >
+          <source
+            type="image/webp"
+            srcset="
+              {{ imgPath }}/400.webp 400w,
+              {{ imgPath }}/800.webp 800w,
+              {{ imgPath }}/1200.webp 1200w
+            "
+            sizes="(max-width: 800px) 100vw, 80vw"
+          >
+          <img
+            class="blur-up-image"
+            src="{{ imgPath }}/1200.jpg"
+            srcset="
+              {{ imgPath }}/400.jpg 400w,
+              {{ imgPath }}/800.jpg 800w,
+              {{ imgPath }}/1200.jpg 1200w
+            "
+            sizes="(max-width: 800px) 100vw, 80vw"
+            alt="{{ project.title }} - photograph {{ loop.index }} of {{ images | length }}{% if project.location %}, {{ project.location }}{% endif %}{% if project.year %} ({{ project.year }}){% endif %}"
+            loading="{{ 'eager' if loop.index <= 2 else 'lazy' }}"
+            onload="this.closest('.blur-up-container').classList.add('is-loaded')"
+          >
+        </picture>
+        <figcaption class="visually-hidden">
+          {{ project.title }} - photograph {{ loop.index }} of {{ images | length }}{% if project.location %}, {{ project.location }}{% endif %}{% if project.year %} ({{ project.year }}){% endif %}
+        </figcaption>
+      </figure>
+    </div>
+    {% endfor %}
+  </div>
+
+  {# Project Footer - title left, grid link + counter right #}
+  <footer class="project-footer">
+    <div class="project-footer-left">
+      <span class="project-footer-title">{{ project.title }}</span>
+    </div>
+    <div class="project-footer-right">
+      <a
+        href="/projects/{{ project.slug }}/grid/"
+        class="project-grid-link"
+        aria-label="View {{ project.title }} image index"
+      >Index</a>
+      <span
+        class="project-counter"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <span class="visually-hidden">Currently viewing slide </span>
+        <span data-current-index>0</span><span aria-hidden="true">/</span><span class="visually-hidden"> of </span><span data-total-count>{{ images | length }}</span>
+      </span>
+    </div>
+  </footer>
+
+  {# Screen reader announcement region #}
+  <div
+    class="visually-hidden"
+    aria-live="polite"
+    aria-atomic="true"
+    data-slide-announce
+  ></div>
+</article>
+
+<script>
+(function() {
+  const view = document.querySelector('[data-project-view]');
+  if (!view) return;
+
+  const slides = view.querySelectorAll('[data-project-slide]');
+  const prevBtn = view.querySelector('[data-project-prev]');
+  const nextBtn = view.querySelector('[data-project-next]');
+  const currentIndexEl = view.querySelector('[data-current-index]');
+  const announceEl = view.querySelector('[data-slide-announce]');
+  const totalCount = {{ images | length }};
+  const projectSlug = '{{ project.slug }}';
+  let current = 0;
+
+  // Smart image preloading system
+  const preloadedImages = new Set();
+  const activePreloads = new Map(); // Track in-progress preloads for cancellation
+
+  /**
+   * Check if connection is slow (save-data mode or slow effective type)
+   * Returns true if we should skip preloading
+   */
+  function isSlowConnection() {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!conn) return false;
+
+    // Respect save-data preference
+    if (conn.saveData) return true;
+
+    // Skip preloading on slow connections
+    const slowTypes = ['slow-2g', '2g'];
+    if (slowTypes.includes(conn.effectiveType)) return true;
+
+    return false;
+  }
+
+  /**
+   * Convert slide index (1-based for images) to zero-padded image path index
+   * Slide 0 = intro (uses image 01), Slides 1-N = images 01-N
+   * Returns AVIF path for best compression (with WebP fallback in preloadImage)
+   */
+  function getImagePath(slideIndex) {
+    // Slide 1 uses image 01, slide 2 uses image 02, etc.
+    // Slide 0 (intro) doesn't need preloading since it's already loaded
+    if (slideIndex <= 0 || slideIndex > totalCount) return null;
+
+    const paddedIndex = String(slideIndex).padStart(2, '0');
+    return '/images/' + projectSlug + '/' + paddedIndex + '/1200.avif';
+  }
+
+  /**
+   * Preload a single image
+   * Returns an object with abort capability
+   */
+  function preloadImage(src) {
+    if (!src || preloadedImages.has(src)) return null;
+
+    const img = new Image();
+    let aborted = false;
+
+    const preloadObj = {
+      src: src,
+      abort: function() {
+        aborted = true;
+        img.src = ''; // Cancel the request
+        activePreloads.delete(src);
+      }
+    };
+
+    activePreloads.set(src, preloadObj);
+
+    img.onload = function() {
+      if (!aborted) {
+        preloadedImages.add(src);
+        activePreloads.delete(src);
+      }
+    };
+
+    img.onerror = function() {
+      activePreloads.delete(src);
+      // Try fallback formats: AVIF -> WebP -> JPG
+      if (!aborted) {
+        if (src.endsWith('.avif')) {
+          const webpSrc = src.replace('.avif', '.webp');
+          if (!preloadedImages.has(webpSrc)) {
+            preloadImage(webpSrc);
+          }
+        } else if (src.endsWith('.webp')) {
+          const jpgSrc = src.replace('.webp', '.jpg');
+          if (!preloadedImages.has(jpgSrc)) {
+            preloadImage(jpgSrc);
+          }
+        }
+      }
+    };
+
+    img.src = src;
+    return preloadObj;
+  }
+
+  /**
+   * Cancel all active preloads (used when user navigates quickly)
+   */
+  function cancelActivePreloads() {
+    activePreloads.forEach(function(preload) {
+      preload.abort();
+    });
+    activePreloads.clear();
+  }
+
+  /**
+   * Preload images around the current slide
+   * Preloads N+1, N+2, N+3 (next 3) and N-1 (previous 1)
+   */
+  function preloadAdjacentImages(currentSlideIndex) {
+    // Skip preloading on slow connections
+    if (isSlowConnection()) return;
+
+    // Cancel any existing preloads to avoid wasted bandwidth
+    cancelActivePreloads();
+
+    // Build list of slides to preload (in priority order)
+    const toPreload = [];
+
+    // Next 3 images (highest priority for forward navigation)
+    for (let i = 1; i <= 3; i++) {
+      const nextIndex = currentSlideIndex + i;
+      if (nextIndex <= totalCount) {
+        toPreload.push(nextIndex);
+      }
+    }
+
+    // Previous 1 image (for back navigation)
+    const prevIndex = currentSlideIndex - 1;
+    if (prevIndex >= 1) {
+      toPreload.push(prevIndex);
+    }
+
+    // Schedule preloading using requestIdleCallback if available
+    const schedulePreload = function(slideIndices) {
+      if (slideIndices.length === 0) return;
+
+      const doPreload = function() {
+        slideIndices.forEach(function(idx) {
+          const src = getImagePath(idx);
+          if (src) {
+            preloadImage(src);
+          }
+        });
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(doPreload, { timeout: 2000 });
+      } else {
+        // Fallback: use setTimeout to avoid blocking
+        setTimeout(doPreload, 100);
+      }
+    };
+
+    schedulePreload(toPreload);
+  }
+
+  function showSlide(index) {
+    // Clamp to valid range (0 = intro, 1-N = images)
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+
+    current = index;
+
+    slides.forEach((slide, i) => {
+      if (i === current) {
+        slide.classList.add('is-active');
+        slide.setAttribute('aria-hidden', 'false');
+      } else {
+        slide.classList.remove('is-active');
+        slide.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // Update counter (show 0 for intro slide, 1-N for images)
+    currentIndexEl.textContent = current;
+
+    // Announce slide change to screen readers
+    if (announceEl) {
+      if (current === 0) {
+        announceEl.textContent = 'Now showing introduction slide';
+      } else {
+        announceEl.textContent = 'Now showing photo ' + current + ' of ' + totalCount;
+      }
+    }
+  }
+
+  function next() {
+    showSlide(current + 1);
+  }
+
+  function prev() {
+    showSlide(current - 1);
+  }
+
+  // Check URL hash on page load and navigate to that slide
+  function checkHash() {
+    const hash = window.location.hash;
+    if (hash) {
+      const slideIndex = parseInt(hash.substring(1), 10);
+      if (!isNaN(slideIndex) && slideIndex >= 0 && slideIndex < slides.length) {
+        showSlide(slideIndex);
+      }
+    }
+  }
+
+  // Update URL hash when navigating (without triggering page scroll)
+  function updateHash(index) {
+    const newHash = index > 0 ? '#' + index : '';
+    if (window.location.hash !== newHash) {
+      history.replaceState(null, '', newHash || window.location.pathname);
+    }
+  }
+
+  // Override showSlide to also update hash and trigger preloading
+  const originalShowSlide = showSlide;
+  showSlide = function(index) {
+    originalShowSlide(index);
+    updateHash(current);
+    // Preload adjacent images after slide change
+    preloadAdjacentImages(current);
+  };
+
+  // Handle back/forward navigation
+  window.addEventListener('hashchange', checkHash);
+
+  // Check hash on initial load
+  checkHash();
+
+  // Initial preload of adjacent images (in case checkHash didn't navigate)
+  // This ensures images are preloaded even if starting from slide 0
+  preloadAdjacentImages(current);
+
+  // Click navigation
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      next();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      prev();
+    } else if (e.key === 'Escape') {
+      // Return focus to navigation buttons when Escape is pressed
+      prevBtn.focus();
+    }
+  });
+
+  // Touch/swipe support - improved to detect horizontal vs vertical swipes
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
+
+  view.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  view.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleSwipe();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const diffX = touchStartX - touchEndX;
+    const diffY = touchStartY - touchEndY;
+
+    // Only register horizontal swipes (ignore vertical scrolling)
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX > 0) {
+        // Swiped left - go next
+        next();
+      } else {
+        // Swiped right - go prev
+        prev();
+      }
+    }
+  }
+})();
+</script>
+{% endblock %}

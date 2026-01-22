@@ -1,0 +1,83 @@
+{% extends "base.njk" %}
+
+{# About Page JSON-LD: AboutPage schema #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About Jonathan Clifford",
+  "description": "{{ description }}",
+  "url": "{{ site.url }}/about/",
+  "mainEntity": {
+    "@id": "{{ site.url }}/#photographer"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url }}/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About",
+        "item": "{{ site.url }}/about/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article
+  class="about-page"
+  itemscope
+  itemtype="https://schema.org/AboutPage"
+  aria-labelledby="about-heading"
+>
+  <h1 id="about-heading" class="about-title">About</h1>
+
+  <div class="about-content">
+    <figure class="about-portrait">
+      <img
+        src="/images/portrait.jpg"
+        alt="Portrait photograph of Jonathan Clifford, a documentary and portrait photographer based in London. Jonathan is shown in a candid pose that reflects his documentary photography style."
+        loading="eager"
+        width="400"
+        height="500"
+        itemprop="image"
+      >
+      <figcaption class="visually-hidden">Jonathan Clifford - Photographer</figcaption>
+    </figure>
+
+    <div class="about-text" itemprop="mainContentOfPage">
+      <section class="about-bio" aria-label="Biography">
+        <p>{{ bio }}</p>
+        {% if bioExtended %}
+        <p>{{ bioExtended }}</p>
+        {% endif %}
+      </section>
+
+      {% if clients %}
+      <section class="about-clients" aria-labelledby="clients-heading">
+        <h2 id="clients-heading">Selected Clients</h2>
+        <p class="client-list" itemprop="knows">{{ clients }}</p>
+      </section>
+      {% endif %}
+
+      <section class="about-crosslink">
+        {% if portfolio == 'commercial' %}
+        <p>Personal work can be found <a href="/personal/">here</a>.</p>
+        {% else %}
+        <p>Commercial work can be found <a href="/commercial/">here</a>.</p>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</article>
+{% endblock %}

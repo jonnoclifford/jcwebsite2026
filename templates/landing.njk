@@ -1,0 +1,739 @@
+{% extends "base.njk" %}
+
+{% block head %}
+<style>
+  /* Hide default header and footer */
+  .site-header,
+  .site-footer { display: none; }
+
+  /* Layout 1: Pure Typography */
+  .landing-v1 {
+    position: fixed;
+    inset: 0;
+    display: flex;
+  }
+
+  .landing-v1 .half {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: background 0.3s ease;
+  }
+
+  .landing-v1 .half:first-child {
+    border-right: 1px solid var(--color-border);
+  }
+
+  .landing-v1 .half:hover {
+    background: var(--color-bg-secondary);
+  }
+
+  .landing-v1 .name {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  /* Layout 2: Vertical Center Stack */
+  .landing-v2 {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+  }
+
+  .landing-v2 .option {
+    text-decoration: none;
+    color: var(--color-text);
+    text-align: center;
+    padding: var(--space-4) var(--space-8);
+    transition: opacity 0.3s ease;
+  }
+
+  .landing-v2 .option:hover {
+    opacity: 0.5;
+  }
+
+  .landing-v2 .name {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .landing-v2 .label {
+    font-size: var(--text-xs);
+    color: var(--color-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: var(--space-2);
+  }
+
+  .landing-v2 .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* Layout 3: Horizontal Minimal */
+  .landing-v3 {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-10);
+  }
+
+  .landing-v3 .option {
+    text-decoration: none;
+    color: var(--color-gray);
+    font-size: var(--text-sm);
+    letter-spacing: 0.05em;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .landing-v3 .option:hover {
+    color: var(--color-text);
+    border-bottom-color: var(--color-text);
+  }
+
+  .landing-v3 .separator {
+    color: var(--color-border);
+  }
+
+  /* Layout 4: Large Type Split */
+  .landing-v4 {
+    position: fixed;
+    inset: 0;
+    display: flex;
+  }
+
+  /* Site title */
+  .landing-v4 .site-title {
+    position: absolute;
+    top: var(--space-6, 1.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #333;
+    transition: opacity 0.4s ease;
+  }
+
+  [data-theme="dark"] .landing-v4 .site-title {
+    color: #ccc;
+  }
+
+  /* Title fades out when either half is hovered */
+  .landing-v4:has(.half.is-hovered) .site-title {
+    opacity: 0;
+  }
+
+  .landing-v4 .half {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .landing-v4 .half--commercial {
+    justify-content: flex-end;
+    padding-right: clamp(2rem, 5vw, 4rem);
+  }
+
+  .landing-v4 .half--personal {
+    justify-content: flex-start;
+    padding-left: clamp(2rem, 5vw, 4rem);
+  }
+
+  .landing-v4 .half.is-hovered {
+    flex: 1.3;
+  }
+
+  .landing-v4:has(.half.is-hovered) .half:not(.is-hovered) {
+    flex: 0.7;
+  }
+
+  /* Nav link - text styling (entire half is clickable) */
+  .landing-v4 .nav-link {
+    position: relative;
+    z-index: 2;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 350;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #333;
+    transition: color 0.4s ease, text-shadow 0.4s ease;
+  }
+
+  [data-theme="dark"] .landing-v4 .nav-link {
+    color: #ccc;
+  }
+
+  /* Text styling when parent half is hovered */
+  .landing-v4 .half.is-hovered .nav-link {
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  [data-theme="dark"] .landing-v4 .half.is-hovered .nav-link {
+    color: #fff;
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Background images */
+  .landing-v4 .half-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: transparent;
+    opacity: 0;
+    transform: scale(1.05);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .landing-v4 .half-bg::before,
+  .landing-v4 .half-bg::after {
+    display: none;
+  }
+
+  .landing-v4 .half.is-hovered .half-bg {
+    opacity: 1;
+    transform: scale(1);
+    filter: none;
+  }
+
+  /* Diagonal divider line */
+  .landing-v4 .divider {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: clamp(80px, 12vw, 140px);
+    background: #333;
+    opacity: 1;
+    z-index: 20;
+    pointer-events: none;
+    transform: translate(-50%, -50%) rotate(25deg);
+    transform-origin: center center;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+  }
+
+  /* When hovering either side, line transforms to vertical */
+  .landing-v4:has(.half.is-hovered) .divider {
+    transform: translate(-50%, -50%) rotate(0deg);
+    width: 2px;
+    height: clamp(100px, 16vw, 200px);
+    opacity: 0.8;
+  }
+
+  [data-theme="dark"] .landing-v4 .divider {
+    background: #ccc;
+    opacity: 1;
+  }
+
+  [data-theme="dark"] .landing-v4:has(.half.is-hovered) .divider {
+    opacity: 0.7;
+  }
+
+  /* Reset zones - invisible areas that reset hover state */
+  .landing-v4 .reset-zone {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 25;
+    /* Uncomment to debug: background: rgba(255, 0, 0, 0.1); */
+  }
+
+  .landing-v4 .reset-zone--top {
+    top: 0;
+    height: 35vh;
+  }
+
+  .landing-v4 .reset-zone--bottom {
+    bottom: 0;
+    height: 35vh;
+  }
+
+  /* Layout 5: Corner Anchored */
+  .landing-v5 {
+    position: fixed;
+    inset: 0;
+  }
+
+  .landing-v5 .option {
+    position: absolute;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: opacity 0.3s ease;
+  }
+
+  .landing-v5 .option:hover {
+    opacity: 0.5;
+  }
+
+  .landing-v5 .option--commercial {
+    top: 50%;
+    left: var(--space-8);
+    transform: translateY(-50%);
+  }
+
+  .landing-v5 .option--personal {
+    top: 50%;
+    right: var(--space-8);
+    transform: translateY(-50%);
+    text-align: right;
+  }
+
+  .landing-v5 .name {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .landing-v5 .label {
+    font-size: var(--text-xs);
+    color: var(--color-gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: var(--space-1);
+  }
+
+  .landing-v5 .line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1px;
+    height: 120px;
+    background: var(--color-border);
+  }
+
+  /* Mobile Layout - Completely separate design */
+  @media (max-width: 768px) {
+    .landing-v1 {
+      flex-direction: column;
+    }
+    .landing-v1 .half:first-child {
+      border-right: none;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* Hide desktop V4 elements on mobile */
+    .landing-v4 .reset-zone,
+    .landing-v4 .divider {
+      display: none;
+    }
+
+    /* Mobile site title - white and prominent */
+    .landing-v4 .site-title {
+      font-size: clamp(1.125rem, 5vw, 1.5rem);
+      top: var(--space-6, 1.5rem);
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    [data-theme="dark"] .landing-v4 .site-title {
+      color: #fff;
+    }
+
+    /* V4 Mobile: Stacked full-width sections */
+    .landing-v4 {
+      flex-direction: column;
+    }
+
+    .landing-v4 .half {
+      flex: 1;
+      min-height: 50vh;
+      justify-content: center;
+      padding: var(--space-6);
+    }
+
+    .landing-v4 .half--commercial {
+      justify-content: center;
+      padding-right: var(--space-6);
+    }
+
+    .landing-v4 .half--personal {
+      justify-content: center;
+      padding-left: var(--space-6);
+    }
+
+    /* Mobile: Show fixed background images at full opacity */
+    .landing-v4 .half .half-bg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Mobile nav links - make entire half clickable */
+    .landing-v4 .nav-link {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.75rem, 8vw, 2.5rem);
+      color: #fff;
+      text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+      z-index: 2;
+    }
+
+    .landing-v4 .nav-link:active {
+      opacity: 0.8;
+    }
+
+    [data-theme="dark"] .landing-v4 .nav-link {
+      color: #fff;
+    }
+
+    .landing-v5 .option--commercial {
+      top: 35%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    .landing-v5 .option--personal {
+      top: 65%;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    .landing-v5 .line {
+      height: 60px;
+    }
+  }
+
+  /* Small mobile */
+  @media (max-width: 480px) {
+    .landing-v4 .site-title {
+      font-size: 0.875rem;
+    }
+
+    .landing-v4 .nav-link {
+      font-size: clamp(1.5rem, 7vw, 2rem);
+    }
+  }
+
+  /* Focus states for accessibility */
+  .landing-v4 .nav-link:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 4px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .landing-v4 .half,
+    .landing-v4 .divider,
+    .landing-v4 .half-bg,
+    .landing-v4 .nav-link,
+    .landing-v4 .site-title {
+      transition: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if variant == 1 %}
+<!-- Layout 1: Pure Typography Split -->
+<div class="landing-v1">
+  <a href="https://www.jonnoclifford.com" class="half">
+    <span class="name">Jonno Clifford</span>
+  </a>
+  <a href="https://www.jonathanclifford.com" class="half">
+    <span class="name">Jonathan Clifford</span>
+  </a>
+</div>
+
+{% elif variant == 2 %}
+<!-- Layout 2: Vertical Center Stack -->
+<div class="landing-v2">
+  <a href="https://www.jonnoclifford.com" class="option">
+    <div class="name">Jonno Clifford</div>
+    <div class="label">Commercial</div>
+  </a>
+  <div class="divider"></div>
+  <a href="https://www.jonathanclifford.com" class="option">
+    <div class="name">Jonathan Clifford</div>
+    <div class="label">Personal</div>
+  </a>
+</div>
+
+{% elif variant == 3 %}
+<!-- Layout 3: Horizontal Minimal -->
+<div class="landing-v3">
+  <a href="https://www.jonnoclifford.com" class="option">Commercial</a>
+  <span class="separator">/</span>
+  <a href="https://www.jonathanclifford.com" class="option">Personal</a>
+</div>
+
+{% elif variant == 4 %}
+<!-- Layout 4: Large Type Split -->
+<div class="landing-v4">
+  <div class="reset-zone reset-zone--top" data-reset></div>
+  <span class="site-title">Jonathan Clifford</span>
+  <div class="half half--commercial" data-side="commercial">
+    <div class="half-bg" data-bg="commercial"></div>
+    <a href="/commercial/" class="nav-link">Commercial</a>
+  </div>
+  <div class="divider"></div>
+  <div class="half half--personal" data-side="personal">
+    <div class="half-bg" data-bg="personal"></div>
+    <a href="/personal/" class="nav-link">Personal</a>
+  </div>
+  <div class="reset-zone reset-zone--bottom" data-reset></div>
+</div>
+
+<script>
+(function() {
+  const commercialImages = {{ commercialImages | dump | safe }};
+  const personalImages = {{ personalImages | dump | safe }};
+
+  // Check if mobile (matches CSS breakpoint)
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  // Detect AVIF support
+  let supportsAvif = false;
+  const avifTest = new Image();
+  avifTest.onload = function() { supportsAvif = avifTest.width > 0 && avifTest.height > 0; };
+  avifTest.onerror = function() { supportsAvif = false; };
+  avifTest.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKBzgADlAgIDggYkQAAABkCAMK';
+
+  // Get best image URL based on format support
+  function getBestImageUrl(img) {
+    if (supportsAvif && img.srcset && img.srcset.avif) {
+      const avifUrls = img.srcset.avif.split(', ');
+      if (avifUrls.length > 0) {
+        const lastUrl = avifUrls[avifUrls.length - 1];
+        return lastUrl.split(' ')[0];
+      }
+    }
+    return img.src;
+  }
+
+  // Find specific image by name (e.g., 'commercial-5')
+  function findImageByName(images, name) {
+    return images.find(img => img.src && img.src.includes(name));
+  }
+
+  // Get elements
+  const commercialHalf = document.querySelector('[data-side="commercial"]');
+  const personalHalf = document.querySelector('[data-side="personal"]');
+  const commercialBg = document.querySelector('[data-bg="commercial"]');
+  const personalBg = document.querySelector('[data-bg="personal"]');
+  const divider = document.querySelector('.landing-v4 .divider');
+  const container = document.querySelector('.landing-v4');
+  const resetZones = document.querySelectorAll('[data-reset]');
+
+  // MOBILE: Simple fixed images, no interactivity beyond clicking
+  if (isMobile) {
+    // Set fixed images for mobile
+    const mobileCommercialImg = findImageByName(commercialImages, 'commercial-5');
+    const mobilePersonalImg = findImageByName(personalImages, 'personal-6');
+
+    if (mobileCommercialImg && commercialBg) {
+      commercialBg.style.backgroundImage = `url('${getBestImageUrl(mobileCommercialImg)}')`;
+    } else if (commercialImages.length > 0 && commercialBg) {
+      // Fallback to first image if specific one not found
+      commercialBg.style.backgroundImage = `url('${getBestImageUrl(commercialImages[0])}')`;
+    }
+
+    if (mobilePersonalImg && personalBg) {
+      personalBg.style.backgroundImage = `url('${getBestImageUrl(mobilePersonalImg)}')`;
+    } else if (personalImages.length > 0 && personalBg) {
+      // Fallback to first image if specific one not found
+      personalBg.style.backgroundImage = `url('${getBestImageUrl(personalImages[0])}')`;
+    }
+
+    // No further JS needed for mobile - CSS handles the rest
+    return;
+  }
+
+  // DESKTOP: Full interactive experience with hover and image cycling
+
+  // Preload all images (both AVIF and fallback)
+  function preloadImages(images) {
+    images.forEach(img => {
+      if (img.srcset && img.srcset.avif) {
+        const avifUrls = img.srcset.avif.split(', ');
+        avifUrls.forEach(urlPart => {
+          const preload = new Image();
+          preload.src = urlPart.split(' ')[0];
+        });
+      }
+      const preload = new Image();
+      preload.src = img.src;
+    });
+  }
+  preloadImages(commercialImages);
+  preloadImages(personalImages);
+
+  // Track last shown index to avoid repeats
+  let lastCommercialIndex = -1;
+  let lastPersonalIndex = -1;
+
+  function getRandomImage(images, lastIndex) {
+    if (images.length === 0) return null;
+    if (images.length === 1) return { image: images[0], index: 0 };
+
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * images.length);
+    } while (newIndex === lastIndex);
+
+    return { image: images[newIndex], index: newIndex };
+  }
+
+  // Set initial images for desktop
+  if (commercialImages.length > 0 && commercialBg) {
+    const initial = getRandomImage(commercialImages, -1);
+    lastCommercialIndex = initial.index;
+    commercialBg.style.backgroundImage = `url('${getBestImageUrl(initial.image)}')`;
+  }
+  if (personalImages.length > 0 && personalBg) {
+    const initial = getRandomImage(personalImages, -1);
+    lastPersonalIndex = initial.index;
+    personalBg.style.backgroundImage = `url('${getBestImageUrl(initial.image)}')`;
+  }
+
+  // Position divider at element boundary
+  function positionDivider(hoveredSide) {
+    if (!divider || !container) return;
+    const containerRect = container.getBoundingClientRect();
+
+    if (hoveredSide === 'commercial' && commercialHalf) {
+      const rect = commercialHalf.getBoundingClientRect();
+      const rightEdge = rect.right - containerRect.left;
+      const percentage = (rightEdge / containerRect.width) * 100;
+      divider.style.left = percentage + '%';
+    } else if (hoveredSide === 'personal' && personalHalf) {
+      const rect = personalHalf.getBoundingClientRect();
+      const leftEdge = rect.left - containerRect.left;
+      const percentage = (leftEdge / containerRect.width) * 100;
+      divider.style.left = percentage + '%';
+    }
+  }
+
+  // Update divider position during hover (accounts for flex animation)
+  let animationFrame;
+  function updateDividerPosition(side) {
+    positionDivider(side);
+    animationFrame = requestAnimationFrame(() => updateDividerPosition(side));
+  }
+
+  // Reset to default state
+  function resetState() {
+    commercialHalf?.classList.remove('is-hovered');
+    personalHalf?.classList.remove('is-hovered');
+    cancelAnimationFrame(animationFrame);
+    if (divider) divider.style.left = '50%';
+  }
+
+  // Hover activation
+  function activateHover(half, side, images, bg) {
+    // Remove hover from the other side
+    if (side === 'commercial') {
+      personalHalf?.classList.remove('is-hovered');
+    } else {
+      commercialHalf?.classList.remove('is-hovered');
+    }
+
+    // Add hover class
+    half.classList.add('is-hovered');
+
+    // Update background image
+    const lastIndex = side === 'commercial' ? lastCommercialIndex : lastPersonalIndex;
+    const result = getRandomImage(images, lastIndex);
+    if (result && bg) {
+      if (side === 'commercial') {
+        lastCommercialIndex = result.index;
+      } else {
+        lastPersonalIndex = result.index;
+      }
+      bg.style.backgroundImage = `url('${getBestImageUrl(result.image)}')`;
+    }
+
+    // Update divider position
+    cancelAnimationFrame(animationFrame);
+    updateDividerPosition(side);
+  }
+
+  // Set up hover handlers on the entire half
+  if (commercialHalf) {
+    commercialHalf.addEventListener('mouseenter', () => {
+      activateHover(commercialHalf, 'commercial', commercialImages, commercialBg);
+    });
+  }
+
+  if (personalHalf) {
+    personalHalf.addEventListener('mouseenter', () => {
+      activateHover(personalHalf, 'personal', personalImages, personalBg);
+    });
+  }
+
+  // Reset zones - when cursor enters these areas, reset to default state
+  resetZones.forEach(zone => {
+    zone.addEventListener('mouseenter', resetState);
+  });
+})();
+</script>
+
+{% elif variant == 5 %}
+<!-- Layout 5: Corner Anchored -->
+<div class="landing-v5">
+  <a href="https://www.jonnoclifford.com" class="option option--commercial">
+    <div class="name">Jonno Clifford</div>
+    <div class="label">Commercial</div>
+  </a>
+  <div class="line"></div>
+  <a href="https://www.jonathanclifford.com" class="option option--personal">
+    <div class="name">Jonathan Clifford</div>
+    <div class="label">Personal</div>
+  </a>
+</div>
+
+{% endif %}
+
+{# View Transitions API for smooth page transitions from landing #}
+<script>
+(function() {
+  // Check if View Transitions API is supported
+  if (!document.startViewTransition) return;
+
+  // Intercept internal link clicks for smooth transition
+  document.querySelectorAll('a[href^="/"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      // Only handle internal links
+      if (!href.startsWith('/')) return;
+
+      e.preventDefault();
+      document.startViewTransition(() => {
+        window.location.href = href;
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

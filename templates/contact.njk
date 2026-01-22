@@ -1,0 +1,104 @@
+{% extends "base.njk" %}
+
+{# Contact Page JSON-LD: ContactPage schema #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact Jonathan Clifford",
+  "description": "Get in touch with Jonathan Clifford for documentary and portrait photography commissions in London and worldwide.",
+  "url": "{{ site.url }}/contact/",
+  "mainEntity": {
+    "@id": "{{ site.url }}/#photographer"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url }}/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Contact",
+        "item": "{{ site.url }}/contact/"
+      }
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article
+  class="contact-page"
+  itemscope
+  itemtype="https://schema.org/ContactPage"
+  aria-labelledby="contact-heading"
+>
+  <h1 id="contact-heading" class="page-title">Contact</h1>
+  <div class="contact-content">
+    <p class="contact-intro">Available for documentary and portrait photography commissions in London and worldwide.<br>Get in touch to discuss your project.</p>
+
+    <nav aria-label="Contact methods">
+      <ul class="contact-list" role="list">
+        <li class="contact-item">
+          <a
+            href="mailto:{{ email }}"
+            class="contact-link"
+            itemprop="email"
+            aria-label="Send email to {{ email }}"
+          >
+            <span class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" role="img" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M22 6L12 13 2 6"/>
+              </svg>
+            </span>
+            <span>{{ email }}</span>
+          </a>
+        </li>
+
+        <li class="contact-item">
+          <a
+            href="https://instagram.com/{{ instagram }}"
+            class="contact-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Follow @{{ instagram }} on Instagram (opens in new window)"
+          >
+            <span class="contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" role="img" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+              </svg>
+            </span>
+            <span>@{{ instagram }}</span>
+            <span class="visually-hidden">(opens in new window)</span>
+          </a>
+        </li>
+
+        {% if commercialSite %}
+        <li class="contact-item contact-item--commercial">
+          <span class="contact-label">Commercial work can be found here:</span>
+          <a
+            href="https://{{ commercialSite }}"
+            class="contact-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit commercial photography website at {{ commercialSite }} (opens in new window)"
+          >
+            <span>{{ commercialSite }}</span>
+            <span class="visually-hidden">(opens in new window)</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</article>
+{% endblock %}

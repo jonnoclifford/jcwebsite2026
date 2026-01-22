@@ -1,0 +1,106 @@
+# Netlify Headers Configuration
+# Jonathan Clifford Photography Portfolio
+# https://docs.netlify.com/routing/headers/
+
+# =============================================================================
+# Global Security Headers (apply to all paths)
+# =============================================================================
+/*
+  # Prevent clickjacking attacks
+  X-Frame-Options: DENY
+
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # Enable XSS protection (legacy browsers)
+  X-XSS-Protection: 1; mode=block
+
+  # Referrer policy - send origin only for cross-origin requests
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Permissions policy - restrict browser features
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+
+  # Content Security Policy - allow self, inline styles/scripts (needed for Nunjucks), and Vimeo embeds
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://player.vimeo.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://player.vimeo.com; font-src 'self'; connect-src 'self'; media-src 'self'
+
+# =============================================================================
+# Images - Long Cache (1 year)
+# Images have unique paths based on project/index and rarely change
+# =============================================================================
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# =============================================================================
+# CSS Files - Medium Cache (1 week) with revalidation
+# Styles may update but path stays the same
+# =============================================================================
+/css/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+# =============================================================================
+# JavaScript Files - Medium Cache (1 week) with revalidation
+# Scripts may update but path stays the same
+# =============================================================================
+/js/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+# =============================================================================
+# HTML Pages - No Cache (always revalidate)
+# Content may update frequently, ensure fresh content
+# =============================================================================
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Project pages
+/projects/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Other pages (about, contact, video, work)
+/about/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/contact/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/video/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/work/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# =============================================================================
+# Static Assets - Long Cache
+# Fonts and favicons rarely change
+# =============================================================================
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+# =============================================================================
+# JSON Data Files - Short Cache
+# Homepage.json and other data may update
+# =============================================================================
+/*.json
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# =============================================================================
+# XML Files (sitemap, etc.) - Short Cache
+# Sitemap updates when content changes
+# =============================================================================
+/*.xml
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# =============================================================================
+# robots.txt - Short Cache
+# =============================================================================
+/robots.txt
+  Cache-Control: public, max-age=86400

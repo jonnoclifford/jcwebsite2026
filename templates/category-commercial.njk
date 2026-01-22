@@ -1,0 +1,208 @@
+{% extends "base.njk" %}
+
+{# Commercial Category Portfolio Page - Masonry Grid Layout #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{{ categoryTitle }} Photography - Jonathan Clifford",
+  "description": "{{ description }}",
+  "url": "{{ site.url }}/commercial/{{ categorySlug }}/",
+  "mainEntity": {
+    "@type": "ImageGallery",
+    "name": "{{ categoryTitle }} Photography Portfolio",
+    "author": {
+      "@type": "Person",
+      "name": "Jonathan Clifford"
+    }
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section
+  class="category-portfolio-page"
+  data-category="{{ categorySlug }}"
+  aria-labelledby="category-heading"
+>
+  {# Category Title - centered under header #}
+  <h1 id="category-heading" class="category-title">{{ categoryTitle }}</h1>
+
+  {# Justified Gallery of Portfolio Images #}
+  <div class="portfolio-grid">
+    {% for image in portfolioImages %}
+    <a
+      href="{{ image.path }}/1200.jpg"
+      class="portfolio-item"
+      style="flex-grow: {{ image.aspectRatio | default(1.5) }}; flex-basis: {{ (image.aspectRatio | default(1.5)) * 350 }}px;"
+      data-lightbox="{{ image.path }}/1200.jpg"
+      tabindex="0"
+      role="button"
+      aria-label="View {{ categoryTitle }} image {{ loop.index }} in fullscreen"
+    >
+      <picture>
+        <source
+          type="image/avif"
+          srcset="{{ image.path }}/600.avif 600w, {{ image.path }}/1200.avif 1200w"
+          sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
+        >
+        <source
+          type="image/webp"
+          srcset="{{ image.path }}/600.webp 600w, {{ image.path }}/1200.webp 1200w"
+          sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
+        >
+        <img
+          class="portfolio-img"
+          src="{{ image.path }}/800.jpg"
+          srcset="{{ image.path }}/600.jpg 600w, {{ image.path }}/1200.jpg 1200w"
+          sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
+          alt="{{ categoryTitle }} photography by Jonathan Clifford"
+          loading="{{ 'eager' if loop.index <= 6 else 'lazy' }}"
+          {% if loop.index <= 3 %}fetchpriority="high"{% endif %}
+        >
+      </picture>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+/* Category Portfolio Page */
+.category-portfolio-page {
+  padding: var(--space-4) var(--commercial-padding, 2rem);
+  max-width: calc(var(--commercial-max-width, 1300px) + var(--commercial-padding, 2rem) * 2);
+  margin: 0 auto;
+  background-color: #FFFFFF;
+}
+
+/* Category Title - centered under header */
+.category-title {
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-primary, #1A1A1A);
+  margin: 0 0 var(--space-6);
+  padding-bottom: var(--space-4);
+}
+
+/* Portfolio Grid - Justified row-based layout with natural aspect ratios */
+.portfolio-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Portfolio Item - no fixed height, images show at natural proportions */
+.portfolio-item {
+  cursor: pointer;
+  position: relative;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.portfolio-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.3s ease;
+  pointer-events: none;
+}
+
+.portfolio-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+/* Hover effect - subtle darkening */
+@media (hover: hover) {
+  .portfolio-item:hover::after {
+    background: rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Focus state */
+.portfolio-item:focus-visible {
+  outline: 2px solid var(--color-black);
+  outline-offset: -2px;
+}
+
+/* Desktop: align with header */
+@media (min-width: 1025px) {
+  .category-portfolio-page {
+    max-width: var(--grid-width);
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* Mobile - stack vertically */
+@media (max-width: 600px) {
+  .portfolio-grid {
+    flex-direction: column;
+  }
+
+  .portfolio-item {
+    flex-basis: auto !important;
+    flex-grow: 0 !important;
+  }
+}
+
+/* Dark mode */
+[data-theme="dark"] .category-portfolio-page {
+  background-color: #0F0F0F;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-img,
+  .portfolio-item::after {
+    transition: none;
+  }
+}
+</style>
+{% endblock %}
+
+{% block footer %}
+<footer class="site-footer commercial-footer" role="contentinfo">
+  <p class="copyright">&copy; {{ currentYear | default('2026') }} Jonathan Clifford</p>
+</footer>
+
+<style>
+.commercial-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem var(--commercial-padding, 2rem);
+  background-color: #FFFFFF;
+  max-width: calc(var(--commercial-max-width, 1100px) + var(--commercial-padding, 2rem) * 2);
+  margin: 0 auto;
+}
+
+@media (min-width: 1025px) {
+  .commercial-footer {
+    max-width: var(--grid-width);
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.commercial-footer .copyright {
+  font-family: var(--font-primary);
+  font-size: 0.7rem;
+  color: var(--text-secondary, #888);
+  margin: 0;
+}
+
+[data-theme="dark"] .commercial-footer {
+  background-color: #0F0F0F;
+}
+</style>
+{% endblock %}

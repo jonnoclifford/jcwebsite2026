@@ -1,0 +1,8 @@
+{
+  "title": "Portraits",
+  "slug": "portraits",
+  "description": "A collection of portrait photography from around the world.",
+  "featured": true,
+  "order": 10,
+  "portfolio": "personal"
+}

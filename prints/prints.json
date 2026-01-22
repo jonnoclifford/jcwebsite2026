@@ -7,8 +7,8 @@
       "image": "/images/i-am-sarajevan/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -21,8 +21,8 @@
       "image": "/images/flower-men/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -35,8 +35,8 @@
       "image": "/images/boomi-mud-trials/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -49,8 +49,8 @@
       "image": "/images/ab-o-atash-skaters/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -63,8 +63,8 @@
       "image": "/images/portraits/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -77,8 +77,8 @@
       "image": "/images/the-heroes-within/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -91,8 +91,8 @@
       "image": "/images/bright-days/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -105,8 +105,8 @@
       "image": "/images/under-the-elms/01",
       "aspectRatio": 1.5,
       "sizes": [
-        { "name": "Small", "dimensions": "10 × 15 in", "price": 150 },
-        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275 }
+        { "name": "Small", "dimensions": "10 × 15 in", "price": 150, "creativehubSku": null },
+        { "name": "Medium", "dimensions": "16 × 24 in", "price": 275, "creativehubSku": null }
       ],
       "paper": "Hahnemühle Photo Rag 308gsm",
       "edition": "Open Edition",
@@ -115,5 +115,11 @@
   ],
   "defaultPaper": "Hahnemühle Photo Rag 308gsm",
   "shippingNote": "Free UK shipping. International shipping calculated at checkout.",
-  "productionTime": "Prints are made to order and typically ship within 5-7 business days."
+  "productionTime": "Prints are made to order and typically ship within 5-7 business days.",
+  "fulfillment": {
+    "provider": "creativehub",
+    "apiUrl": "https://api.creativehub.io",
+    "sandboxUrl": "https://api.sandbox.tps-test.io",
+    "notes": "SKUs need to be configured after setting up products in the Creativehub dashboard"
+  }
 }

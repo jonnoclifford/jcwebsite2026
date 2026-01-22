@@ -7,6 +7,7 @@
  */
 
 import Stripe from 'stripe';
+import { createPrintspaceOrder } from './printspace.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -80,16 +81,30 @@ export const handler = async (event) => {
 async function handleSuccessfulPayment(session) {
   console.log('Processing successful payment:', session.id);
 
+  // Parse order items from metadata
+  let orderItems = [];
+  try {
+    orderItems = JSON.parse(session.metadata?.order_items || '[]');
+  } catch (e) {
+    console.error('Failed to parse order items:', e);
+  }
+
   // Extract order details from session
   const order = {
     stripe_session_id: session.id,
     stripe_payment_intent_id: session.payment_intent,
     customer_email: session.customer_details?.email,
-    shipping_name: session.shipping_details?.name,
-    shipping_address: session.shipping_details?.address,
-    print_id: session.metadata?.print_id,
-    size: session.metadata?.size,
-    dimensions: session.metadata?.dimensions,
+    shipping: {
+      name: session.shipping_details?.name,
+      address: session.shipping_details?.address
+    },
+    items: orderItems.map(item => ({
+      print_id: item.print_id,
+      title: item.title,
+      size: item.size,
+      dimensions: item.dimensions,
+      quantity: item.quantity || 1
+    })),
     amount_total: session.amount_total,
     currency: session.currency,
     created_at: new Date().toISOString()
@@ -102,13 +117,28 @@ async function handleSuccessfulPayment(session) {
   //   .from('orders')
   //   .insert([order]);
 
-  // TODO: Send order to Print Space
-  // await sendToPrintLab(order);
+  // Send order to Printspace/Creativehub
+  if (process.env.CREATIVEHUB_API_KEY) {
+    try {
+      const printspaceOrder = await createPrintspaceOrder({
+        orderId: session.id,
+        customerEmail: order.customer_email,
+        shipping: order.shipping,
+        items: order.items
+      });
+      console.log('Printspace order created:', printspaceOrder.id || printspaceOrder);
+    } catch (error) {
+      console.error('Failed to create Printspace order:', error.message);
+      // Don't throw - payment succeeded, we can manually fulfill if needed
+      // In production, you'd want to alert/notify here
+    }
+  } else {
+    console.log('CREATIVEHUB_API_KEY not set - skipping Printspace order');
+  }
 
   // TODO: Send confirmation email
   // await sendConfirmationEmail(order);
 
-  // For now, just log the order
   console.log('Order processed successfully:', order.stripe_session_id);
 
   return order;

@@ -1337,7 +1337,7 @@ async function copyAssets() {
   if (await fs.pathExists(CONFIG.srcCss)) {
     await fs.ensureDir(path.join(CONFIG.distDir, 'css'));
     const cssFiles = await fs.readdir(CONFIG.srcCss);
-    const cleanCss = new CleanCSS({ level: 2 });
+    const cleanCss = new CleanCSS({ level: 1 }); // Level 1 only - level 2 breaks selectors
 
     for (const file of cssFiles) {
       if (file.endsWith('.css')) {

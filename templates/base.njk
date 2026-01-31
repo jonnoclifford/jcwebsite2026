@@ -112,17 +112,6 @@
   {% block head %}{% endblock %}
 </head>
 <body{% if portfolio == 'commercial' %} class="commercial-theme"{% endif %}>
-  {# Rotate device overlay - shown on mobile landscape #}
-  <div class="rotate-device-overlay" aria-hidden="true">
-    <div class="rotate-device-content">
-      <svg class="rotate-device-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="4" y="2" width="16" height="20" rx="2"/>
-        <path d="M12 18h.01"/>
-      </svg>
-      <p>Please rotate your device to portrait mode</p>
-    </div>
-  </div>
-
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <header class="site-header" role="banner" data-header>

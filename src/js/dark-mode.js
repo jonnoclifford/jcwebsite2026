@@ -7,7 +7,7 @@ const STORAGE_KEY = 'jc-theme';
 
 /**
  * Get the user's preferred theme
- * Priority: localStorage > system preference > light
+ * Priority: localStorage > light (default)
  */
 function getPreferredTheme() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -15,11 +15,7 @@ function getPreferredTheme() {
     return stored;
   }
 
-  // Check system preference
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
-  }
-
+  // Always default to light mode
   return 'light';
 }
 
@@ -58,14 +54,6 @@ export function initDarkMode() {
   if (toggle) {
     toggle.addEventListener('click', toggleTheme);
   }
-
-  // Listen for system preference changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    // Only auto-switch if user hasn't manually set a preference
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      applyTheme(e.matches ? 'dark' : 'light');
-    }
-  });
 }
 
 // Auto-initialize when loaded as part of a bundle

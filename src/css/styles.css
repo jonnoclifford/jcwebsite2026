@@ -190,28 +190,49 @@
   color: #D0D0D0;
 }
 
-/* Theme toggle button - only visible on larger screens */
+/* Theme toggle button - visible on all screen sizes */
 .theme-toggle {
-  display: none;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  color: var(--color-gray);
+  transition: opacity var(--transition), border-color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
+/* Mobile: position in header next to hamburger menu */
+@media (max-width: 1023px) {
+  .theme-toggle {
+    top: 50%;
+    right: calc(var(--tap-target-min) + var(--gutter) - 10px);
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    opacity: 0.6;
+    z-index: calc(var(--z-header) + 1);
+  }
+
+  .theme-toggle svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Desktop: position in bottom-right corner */
 @media (min-width: 1024px) {
   .theme-toggle {
-    position: fixed;
     bottom: var(--space-6);
     right: var(--space-6);
     width: 36px;
     height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 1px solid var(--color-border);
     border-radius: 50%;
-    cursor: pointer;
-    color: var(--color-gray);
     opacity: 0.5;
-    transition: opacity var(--transition), border-color var(--transition);
     z-index: 50;
   }
 
@@ -224,24 +245,24 @@
     width: 16px;
     height: 16px;
   }
+}
 
-  /* Hide sun icon by default (light mode), show moon */
-  .theme-toggle .icon-sun {
-    display: none;
-  }
+/* Hide sun icon by default (light mode), show moon */
+.theme-toggle .icon-sun {
+  display: none;
+}
 
-  .theme-toggle .icon-moon {
-    display: block;
-  }
+.theme-toggle .icon-moon {
+  display: block;
+}
 
-  /* In dark mode, show sun icon, hide moon */
-  [data-theme="dark"] .theme-toggle .icon-sun {
-    display: block;
-  }
+/* In dark mode, show sun icon, hide moon */
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
 
-  [data-theme="dark"] .theme-toggle .icon-moon {
-    display: none;
-  }
+[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
 }
 
 /* Move cart button up when theme toggle is visible */
@@ -3194,58 +3215,3 @@ body.commercial-theme[data-theme="dark"] .site-footer {
   background-color: #0F0F0F;
 }
 
-/* --------------------------------------------------------------------------
-   Rotate Device Overlay - Mobile Landscape
-   -------------------------------------------------------------------------- */
-
-/* Hidden by default */
-.rotate-device-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  background-color: var(--color-bg, #FDF9F3);
-  justify-content: center;
-  align-items: center;
-}
-
-.rotate-device-content {
-  text-align: center;
-  padding: var(--space-8);
-}
-
-.rotate-device-icon {
-  width: 48px;
-  height: 48px;
-  margin-bottom: var(--space-4);
-  color: var(--color-gray, #666);
-  /* Rotate icon to show portrait orientation */
-  transform: rotate(0deg);
-}
-
-.rotate-device-overlay p {
-  font-family: 'Josefin Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--color-gray, #666);
-  margin: 0;
-}
-
-/* Show overlay on mobile landscape (short height + wide width = landscape phone) */
-@media (max-width: 932px) and (max-height: 500px) and (orientation: landscape) {
-  .rotate-device-overlay {
-    display: flex;
-  }
-}
-
-/* Dark mode support */
-[data-theme="dark"] .rotate-device-overlay {
-  background-color: #0F0F0F;
-}
-
-[data-theme="dark"] .rotate-device-icon,
-[data-theme="dark"] .rotate-device-overlay p {
-  color: var(--color-gray-light, #999);
-}
